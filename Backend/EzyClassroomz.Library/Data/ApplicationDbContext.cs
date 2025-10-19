@@ -12,6 +12,7 @@ namespace EzyClassroomz.Library.Data
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<UserAuthorizationPolicy> UserAuthorizationPolicies { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -19,9 +20,17 @@ namespace EzyClassroomz.Library.Data
 
             modelBuilder.Entity<User>(entity =>
             {
-                entity.HasIndex(e => new { e.Email, e.Name }).IsUnique();
                 entity.HasIndex(e => e.Name).IsUnique();
                 entity.HasIndex(e => e.TenantId);
+                entity
+                    .HasMany(e => e.AuthorizationPolicies)
+                    .WithOne(p => p.User)
+                    .HasForeignKey(p => p.UserId);
+            });
+
+            modelBuilder.Entity<UserAuthorizationPolicy>(entity =>
+            {
+                entity.HasIndex(e => new { e.Name, e.UserId }).IsUnique();
             });
         }
     }

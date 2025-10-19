@@ -1,10 +1,14 @@
 
 using System.Security.Claims;
 using System.Text;
+using EzyClassroomz.Api.Classes;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using EzyClassroomz.Library.Repositories;
+using EzyClassroomz.Library.Entities;
 
 namespace EzyClassroomz.Api.Controllers;
 
@@ -13,10 +17,14 @@ namespace EzyClassroomz.Api.Controllers;
 public class AuthenticationController : ControllerBase
 {
     private readonly IConfiguration _configuration;
+    private readonly ILogger<AuthenticationController> _logger;
+    private readonly UserRepository _userRepository;
 
-    public AuthenticationController(IConfiguration configuration)
+    public AuthenticationController(IConfiguration configuration, ILogger<AuthenticationController> logger, UserRepository userRepository)
     {
         _configuration = configuration;
+        _logger = logger;
+        _userRepository = userRepository;
     }
 
     [HttpGet]
@@ -31,23 +39,63 @@ public class AuthenticationController : ControllerBase
         });
     }
 
-    [HttpPost]
-    public IActionResult Login([FromBody] LoginDTO request)
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] RegisterRequestDTO request)
     {
-#if DEBUG
-        Response.Cookies.Append("jwt", GenerateJwtToken(request.Username, new Dictionary<string, string>
+        try
         {
-            ["canViewStats"] = "true"
-        }), new CookieOptions
+            User? existingUser = await _userRepository.GetUserByName(request.Name, readOnly: true);
+
+            if (existingUser != null)
+            {
+                return Conflict("User with this username already exists.");
+            }
+
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+            User newUser = new User
+            {
+                Name = request.Name,
+                Email = request.Email,
+                PasswordHash = hashedPassword,
+                TenantId = request.TenantId,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            await _userRepository.CreateUser(newUser);
+
+            return Ok();
+        }
+        catch (Exception ex)
         {
-            HttpOnly = true,
-            Secure = false,
-            SameSite = SameSiteMode.Lax,
-            Expires = DateTimeOffset.UtcNow.AddMinutes(60)
-        });
-        return Ok(new { message = "Logged in (DEBUG mode)" });
-        #endif
-        return Unauthorized();
+            _logger.LogError($"POST /register failed: {ex}");
+            return StatusCode(500, "An error occurred during registration.");
+        }
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginDTO request)
+    {
+        try
+        {
+            User? user = await _userRepository.GetUserByName(request.Name, readOnly: true);
+
+            if (user != null && BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            {
+                Response.Cookies.Append("jwt", GenerateJwtToken(request.Name, new Dictionary<string, string>()));
+                return Ok(new { message = "Logged in (DEBUG mode)" });
+            }
+            else
+            {
+                return Unauthorized("Invalid username or password.");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"POST /login failed: {ex}");
+            return StatusCode(500, "An error occurred during login.");
+        }
     }
 
     private string GenerateJwtToken(string username, Dictionary<string, string> claims)

@@ -25,6 +25,7 @@ namespace EzyClassroomz.Library.Entities
         [Required]
         [MaxLength(256)]
         public required string TenantId { get; set; }
+        public ICollection<UserAuthorizationPolicy> AuthorizationPolicies { get; set; } = new List<UserAuthorizationPolicy>();
 
         /// <summary>
         /// Parameterless constructor for EF Core.
