@@ -13,26 +13,16 @@ namespace EzyClassroomz.Library.Repositories
             _context = context;
         }
 
-        public async Task<User?> GetUserById(long id, bool readOnly = false)
+        public async Task<User?> GetUserById(long id, bool readOnly = false, bool includeAuthorizationPolicies = false)
         {
-            IQueryable<User> query = _context.Users;
-            
-            if (readOnly)
-                query = query.AsNoTracking();
-
-            return await query
+            return await GetCommonSingleUserQuery(readOnly, includeAuthorizationPolicies)
                 .Where(u => u.Id == id)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<User?> GetUserByName(string name, bool readOnly = false)
+        public async Task<User?> GetUserByName(string name, bool readOnly = false, bool includeAuthorizationPolicies = false)
         {
-            IQueryable<User> query = _context.Users;
-
-            if (readOnly)
-                query = query.AsNoTracking();
-
-            return await query
+            return await GetCommonSingleUserQuery(readOnly, includeAuthorizationPolicies)
                 .Where(u => u.Name == name)
                 .FirstOrDefaultAsync();
         }
@@ -54,15 +44,28 @@ namespace EzyClassroomz.Library.Repositories
             {
                 tracked = await GetUserById(user.Id);
             }
-            
+
             if (tracked == null)
             {
                 throw new InvalidOperationException($"User with Id {user.Id} not found in the database.");
             }
-            
+
             _context.Entry(tracked!).CurrentValues.SetValues(user);
 
             await _context.SaveChangesAsync();
+        }
+        
+        private IQueryable<User> GetCommonSingleUserQuery(bool readOnly, bool includeAuthorizationPolicies)
+        {
+            IQueryable<User> query = _context.Users;
+
+            if (readOnly)
+                query = query.AsNoTracking();
+
+            if (includeAuthorizationPolicies)
+                query = query.Include(u => u.AuthorizationPolicies);
+
+            return query;
         }
     }
 }

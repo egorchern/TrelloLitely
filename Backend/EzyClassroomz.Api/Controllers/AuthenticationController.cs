@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using EzyClassroomz.Library.Repositories;
 using EzyClassroomz.Library.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EzyClassroomz.Api.Controllers;
 
@@ -37,6 +38,13 @@ public class AuthenticationController : ControllerBase
             isAuthenticated = User.Identity?.IsAuthenticated ?? false,
             claims = claims
         });
+    }
+
+    [HttpGet("restricted")]
+    [Authorize(policy: "viewRestricted")]
+    public IActionResult GetRestricted()
+    {
+        return Ok("This is a restricted endpoint");
     }
 
     [HttpPost("register")]
@@ -79,17 +87,23 @@ public class AuthenticationController : ControllerBase
     {
         try
         {
-            User? user = await _userRepository.GetUserByName(request.Name, readOnly: true);
+            User? user = await _userRepository.GetUserByName(request.Name, readOnly: true, includeAuthorizationPolicies: true);
 
-            if (user != null && BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-            {
-                Response.Cookies.Append("jwt", GenerateJwtToken(request.Name, new Dictionary<string, string>()));
-                return Ok(new { message = "Logged in (DEBUG mode)" });
-            }
-            else
+            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             {
                 return Unauthorized("Invalid username or password.");
             }
+
+            Response.Cookies.Append("jwt", GenerateJwtToken(request.Name, user.AuthorizationPolicies.ToDictionary(p => p.Name, p => "true")), new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:ExpiryInMinutes"]!))
+            });
+
+            return Ok(new { message = "Logged in (DEBUG mode)" });
+
         }
         catch (Exception ex)
         {

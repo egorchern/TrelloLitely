@@ -1,5 +1,8 @@
 using System.Text;
+using EzyClassroomz.Library.Data;
+using EzyClassroomz.Library.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,7 +53,27 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
-    
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("viewRestricted", policy =>
+        policy.RequireClaim("viewRestricted"));
+});
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
+// DI
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+    options.UseNpgsql(connectionString);
+});
+
+builder.Services.AddScoped<UserRepository>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using EzyClassroomz.Library.Entities;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.Extensions.Configuration;
 
 namespace EzyClassroomz.Library.Data
 {
