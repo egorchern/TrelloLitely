@@ -1,11 +1,19 @@
 import { AuthenticationInfo } from "../../types/authenticationInfo";
 
-function APILogin(name: string, password: string) {
-    return fetch('/api/authentication/login', {
+async function APILogin(name: string, password: string) {
+    let request = fetch('/api/authentication/login', {
         method: 'POST',
         credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ name, password })
     })
+    let data = await request;
+
+    if (!data.ok) {
+        throw new Error(await data.text());
+    }
 }
 
 async function APIGetAuthenticationInfo() {

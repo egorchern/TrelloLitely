@@ -11,18 +11,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Spinner } from "@/components/ui/spinner";
 
 interface LoginViewProps {
-    onLogin: () => void;
+    onLogin: (username: string, password: string) => void;
+    loginIsPending: boolean;
+    loginError?: string;
 }
 
-export function LoginView({onLogin}: LoginViewProps) {
+export function LoginView({onLogin, loginIsPending, loginError}: LoginViewProps) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        onLogin();
+        onLogin(username, password);
     };
 
     return (
@@ -33,7 +36,7 @@ export function LoginView({onLogin}: LoginViewProps) {
             </CardHeader>
             <CardContent>
                 <form onSubmit={handleSubmit} className={styles.loginForm}>
-                    <h2>Login</h2>
+                    
                     <div className={styles.loginGroup}>
                         <div>
                             <label>Username</label>
@@ -53,13 +56,15 @@ export function LoginView({onLogin}: LoginViewProps) {
                                 onInput={(e) => setPassword(e.currentTarget.value)}
                             ></Input>
                         </div>
-                        
                     </div>
-                    
-                    <Button type="submit" className={styles.loginButton}>Login</Button>
+                    {
+                        loginError && <p>Error: {loginError}</p>
+                    }
+                    {
+                        loginIsPending ? <Spinner /> : <Button type="submit">Login</Button>
+                    }
                 </form>
             </CardContent>
-            </Card>
-        
+        </Card>
     );
 }

@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { LoginView } from "./LoginView";
-import { APIGetAuthenticationInfo } from "../../api/auth/authentication";
+import { APIGetAuthenticationInfo, APILogin } from "../../api/auth/authentication";
 import { AuthenticationInfo } from "../../types/authenticationInfo";
 import { Spinner } from "@/components/ui/spinner"
 
@@ -10,8 +10,14 @@ export function Login() {
         queryKey: ['auth'],
         queryFn: APIGetAuthenticationInfo,
     });
-    const handleLogin = () => {
+    const loginMutation = useMutation({
+        mutationFn: ({ username, password }: { username: string; password: string }) => APILogin(username, password),
+    })
+
+    const handleLogin = (username: string, password: string) => {
+        loginMutation.mutate({ username, password });
     }
+    console.log(loginMutation.error?.message);
 
     return (
         (isLoading || isFetching) ? (
@@ -21,7 +27,9 @@ export function Login() {
                 <div>Error: {error!.message}</div>
             ) : (
                 !authInfo?.isAuthenticated && (
-                    <LoginView onLogin={handleLogin} />
+                    <LoginView onLogin={handleLogin} 
+                    loginIsPending={loginMutation.isPending} 
+                    loginError={loginMutation.error?.message}/>
                 )
             )
         )
