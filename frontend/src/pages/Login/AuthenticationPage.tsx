@@ -2,7 +2,7 @@ import { APIGetAuthenticationInfo } from "@/api/auth/authentication";
 import { Spinner } from "@/components/ui/spinner";
 import { AuthenticationInfo } from "@/types/authenticationInfo";
 import { useQuery } from "@tanstack/react-query";
-import { createContext, useState } from "react";
+import { useState } from "react";
 import { Login } from "./Login";
 import { Register } from "./Register";
 import { AuthenticationPageContextProvider } from "./AuthenticationPageContext";
