@@ -4,34 +4,26 @@ import { APIGetAuthenticationInfo, APILogin } from "../../api/auth/authenticatio
 import { AuthenticationInfo } from "../../types/authenticationInfo";
 import { Spinner } from "@/components/ui/spinner"
 
+interface LoginProps {
+    onSuccessfulLogin: () => void;
+    onShowRegister: () => void;
+}
 
-export function Login() {
-    const { data: authInfo, isLoading, isFetching, error } = useQuery<AuthenticationInfo, Error>({
-        queryKey: ['auth'],
-        queryFn: APIGetAuthenticationInfo,
-    });
+export function Login({onSuccessfulLogin, onShowRegister}: LoginProps) {
     const loginMutation = useMutation({
         mutationFn: ({ username, password }: { username: string; password: string }) => APILogin(username, password),
+        onSuccess: onSuccessfulLogin
     })
 
-    const handleLogin = (username: string, password: string) => {
+    const handleLogin = async (username: string, password: string) => {
         loginMutation.mutate({ username, password });
     }
-    console.log(loginMutation.error?.message);
 
     return (
-        (isLoading || isFetching) ? (
-            <Spinner />
-        ) : (
-            error ? (
-                <div>Error: {error!.message}</div>
-            ) : (
-                !authInfo?.isAuthenticated && (
-                    <LoginView onLogin={handleLogin} 
-                    loginIsPending={loginMutation.isPending} 
-                    loginError={loginMutation.error?.message}/>
-                )
-            )
-        )
+        <LoginView onLogin={handleLogin} 
+        loginIsPending={loginMutation.isPending} 
+        loginError={loginMutation.error?.message}
+        onShowRegister={onShowRegister}
+        />
     )
 }

@@ -12,14 +12,17 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner";
+import { Label } from "@/components/ui/label";
+import { Field } from "@/components/ui/field";
 
 interface LoginViewProps {
     onLogin: (username: string, password: string) => void;
+    onShowRegister: () => void;
     loginIsPending: boolean;
     loginError?: string;
 }
 
-export function LoginView({onLogin, loginIsPending, loginError}: LoginViewProps) {
+export function LoginView({onLogin, loginIsPending, loginError, onShowRegister}: LoginViewProps) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
@@ -38,30 +41,37 @@ export function LoginView({onLogin, loginIsPending, loginError}: LoginViewProps)
                 <form onSubmit={handleSubmit} className={styles.loginForm}>
                     
                     <div className={styles.loginGroup}>
-                        <div>
-                            <label>Username</label>
+                        <Field>
+                            <Label htmlFor="username">Username</Label>
                             <Input
                                 type="text"
                                 placeholder="Username"
                                 value={username}
+                                id="username"
                                 onInput={(e) => setUsername(e.currentTarget.value)}
                             ></Input>
-                        </div>
-                        <div>
-                            <label>Password</label>
+                        </Field>
+                        <Field>
+                            <Label htmlFor="password">Password</Label>
                             <Input
                                 type="password"
                                 placeholder="Password"
                                 value={password}
+                                id="password"
                                 onInput={(e) => setPassword(e.currentTarget.value)}
                             ></Input>
-                        </div>
+                        </Field>
                     </div>
                     {
                         loginError && <p>Error: {loginError}</p>
                     }
                     {
-                        loginIsPending ? <Spinner /> : <Button type="submit">Login</Button>
+                        loginIsPending ? <Spinner /> : (
+                            <>
+                                <Button type="submit">Login</Button>
+                                <Button variant='outline' type="button" onClick={onShowRegister}>Register</Button>
+                            </>
+                        )
                     }
                 </form>
             </CardContent>

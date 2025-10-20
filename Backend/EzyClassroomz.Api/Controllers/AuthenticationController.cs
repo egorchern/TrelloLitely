@@ -31,7 +31,6 @@ public class AuthenticationController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetCurrentAuthentication()
     {
-        await Task.Delay(2000);
         // get current claims
         var claims = User.Claims.ToDictionary(c => c.Type, c => c.Value);
 
