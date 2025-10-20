@@ -78,7 +78,7 @@ namespace EzyClassroomz.Testing.Integration
                 await AuthUtilities.Login(_client, loginRequest);
             });
         }
-        
+
         [Test]
         public async Task Test_SuccessfullRegister_AndLoginWithWrongPassword()
         {
@@ -100,6 +100,28 @@ namespace EzyClassroomz.Testing.Integration
             Assert.ThrowsAsync<Exception>(async () =>
             {
                 await AuthUtilities.Login(_client, loginRequest);
+            });
+        }
+        
+        [Test]
+        public async Task Test_RegisterExistingUser()
+        {
+            // Arrange
+            string username = "existinguser";
+            string password = "existpass";
+            string email = "existinguser@example.com";
+            string tenant = "testtenant";
+
+            RegisterRequestDTO registerRequest = new RegisterRequestDTO(username, email, password, tenant);
+            Assert.DoesNotThrowAsync(async () =>
+            {
+                await AuthUtilities.RegisterUser(_client, registerRequest);
+            });
+
+            // Act - Try to register the same user again
+            Assert.ThrowsAsync<Exception>(async () =>
+            {
+                await AuthUtilities.RegisterUser(_client, registerRequest);
             });
         }
     }
