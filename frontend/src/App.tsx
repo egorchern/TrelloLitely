@@ -1,42 +1,29 @@
-import { useQuery } from '@tanstack/react-query'
-import './App.css'
-
-interface HealthResponse {
-  status: string;
-  timestamp: string;
-}
-
-const fetchHealth = async (): Promise<HealthResponse> => {
-  const response = await fetch('http://localhost:5000/api/health');
-  if (!response.ok) {
-    throw new Error('Failed to fetch health');
-  }
-  return response.json();
-};
+import './App.css';
+import styles from './App.module.css'
+import React from 'react';
+import { Login } from './pages/Login/Login';
+import { Link, Route, Routes } from 'react-router-dom';
+import { Home } from './pages/Home/Home';
 
 function App() {
-  const { data: health, isLoading, isError } = useQuery({
-    queryKey: ['health'],
-    queryFn: fetchHealth,
-  });
 
   return (
-    <div className="App">
-      <h1>EzyClassroomz2</h1>
-      <div className="card">
-        <h2>API Status</h2>
-        {isLoading ? (
-          <p>Checking API...</p>
-        ) : isError ? (
-          <p>Failed to connect to API</p>
-        ) : health ? (
-          <div>
-            <p>Status: {health.status}</p>
-            <p>Timestamp: {new Date(health.timestamp).toLocaleString()}</p>
-          </div>
-        ) : null}
+    <>
+      <div className={styles.app}>
+        <div className={styles.appHeader}>
+          <h1>TrelloLitely</h1>
+          <nav className={styles.pageNav}>
+            <Link to="/">Home</Link>
+            <Link to="/login">Login</Link>
+          </nav>
+          
+        </div>
+        <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+          </Routes>
       </div>
-    </div>
+    </>
   )
 }
 

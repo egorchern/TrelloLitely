@@ -29,10 +29,12 @@ public class AuthenticationController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetCurrentAuthentication()
+    public async Task<IActionResult> GetCurrentAuthentication()
     {
+        await Task.Delay(2000);
         // get current claims
         var claims = User.Claims.ToDictionary(c => c.Type, c => c.Value);
+
         return Ok(new
         {
             isAuthenticated = User.Identity?.IsAuthenticated ?? false,
@@ -42,7 +44,7 @@ public class AuthenticationController : ControllerBase
 
     [HttpGet("restricted")]
     [Authorize(policy: "viewRestricted")]
-    public IActionResult GetRestricted()
+    public async Task<IActionResult> GetRestricted()
     {
         return Ok("This is a restricted endpoint");
     }
