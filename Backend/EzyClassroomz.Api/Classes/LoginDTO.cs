@@ -1,4 +1,4 @@
-namespace EzyClassroomz.Api.Controllers;
+namespace EzyClassroomz.Api.Classes;
 
 public record LoginDTO
 (

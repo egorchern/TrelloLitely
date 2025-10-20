@@ -89,7 +89,6 @@ public class AuthenticationController : ControllerBase
     {
         try
         {
-            await Task.Delay(1000);
             User? user = await _userRepository.GetUserByName(request.Name, readOnly: true, includeAuthorizationPolicies: true);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))

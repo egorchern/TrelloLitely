@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EzyClassroomz.Api", "backen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EzyClassroomz.Library", "backend\EzyClassroomz.Library\EzyClassroomz.Library.csproj", "{2E3C76AB-FD24-4716-8318-C9AF8C89D81C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EzyClassroomz.Testing", "EzyClassroomz.Testing\EzyClassroomz.Testing.csproj", "{504F82AE-2190-4FD5-BFB5-36AA3574D1B1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,10 @@ Global
 		{2E3C76AB-FD24-4716-8318-C9AF8C89D81C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E3C76AB-FD24-4716-8318-C9AF8C89D81C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E3C76AB-FD24-4716-8318-C9AF8C89D81C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{504F82AE-2190-4FD5-BFB5-36AA3574D1B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{504F82AE-2190-4FD5-BFB5-36AA3574D1B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{504F82AE-2190-4FD5-BFB5-36AA3574D1B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{504F82AE-2190-4FD5-BFB5-36AA3574D1B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
