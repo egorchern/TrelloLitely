@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button"
-import { useState } from "react";
+import { useContext, useState } from "react";
 import styles from './Login.module.css';
 import {
   Card,
@@ -12,21 +12,22 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { Label } from "@/components/ui/label";
 import { Field } from "@/components/ui/field";
+import { AuthenticationPageContext } from "./AuthenticationPageContext";
 
 interface RegisterViewProps {
     onRegister: (username: string, email: string, password: string, tenantId: string) => void;
-    onShowLogin: () => void;
     registerIsPending: boolean;
     registerError?: string;
 }
 
-export function RegisterView({onRegister, registerIsPending, registerError, onShowLogin}: RegisterViewProps) {
+export function RegisterView({onRegister, registerIsPending, registerError}: RegisterViewProps) {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [tenantId, setTenantId] = useState("");
     const [validationError, setValidationError] = useState<string | null>(null);
+    const {showLogin} = useContext(AuthenticationPageContext)!;
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -121,7 +122,7 @@ export function RegisterView({onRegister, registerIsPending, registerError, onSh
                         registerIsPending ? <Spinner /> : (
                             <>
                                 <Button type="submit">Register</Button>
-                                <Button variant='outline' type="button" onClick={onShowLogin}>Back to Login</Button>
+                                <Button variant='outline' type="button" onClick={showLogin}>Back to Login</Button>
                             </>
                         )
                     }

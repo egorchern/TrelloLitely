@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button"
-import { useState } from "react";
+import { useContext, useState } from "react";
 import styles from './Login.module.css';
 import {
   Card,
@@ -14,17 +14,18 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { Label } from "@/components/ui/label";
 import { Field } from "@/components/ui/field";
+import { AuthenticationPageContext } from "./AuthenticationPageContext";
 
 interface LoginViewProps {
     onLogin: (username: string, password: string) => void;
-    onShowRegister: () => void;
     loginIsPending: boolean;
     loginError?: string;
 }
 
-export function LoginView({onLogin, loginIsPending, loginError, onShowRegister}: LoginViewProps) {
+export function LoginView({onLogin, loginIsPending, loginError}: LoginViewProps) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const {showRegister} = useContext(AuthenticationPageContext)!;
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -69,7 +70,7 @@ export function LoginView({onLogin, loginIsPending, loginError, onShowRegister}:
                         loginIsPending ? <Spinner /> : (
                             <>
                                 <Button type="submit">Login</Button>
-                                <Button variant='outline' type="button" onClick={onShowRegister}>Register</Button>
+                                <Button variant='outline' type="button" onClick={showRegister}>Register</Button>
                             </>
                         )
                     }

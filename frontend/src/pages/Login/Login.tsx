@@ -6,10 +6,9 @@ import { Spinner } from "@/components/ui/spinner"
 
 interface LoginProps {
     onSuccessfulLogin: () => void;
-    onShowRegister: () => void;
 }
 
-export function Login({onSuccessfulLogin, onShowRegister}: LoginProps) {
+export function Login({onSuccessfulLogin}: LoginProps) {
     const loginMutation = useMutation({
         mutationFn: ({ username, password }: { username: string; password: string }) => APILogin(username, password),
         onSuccess: onSuccessfulLogin
@@ -23,7 +22,6 @@ export function Login({onSuccessfulLogin, onShowRegister}: LoginProps) {
         <LoginView onLogin={handleLogin} 
         loginIsPending={loginMutation.isPending} 
         loginError={loginMutation.error?.message}
-        onShowRegister={onShowRegister}
         />
     )
 }
