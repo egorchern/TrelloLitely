@@ -4,11 +4,13 @@ import { Link, Route, Routes } from 'react-router-dom';
 import { Home } from './pages/Home/Home';
 import { AuthenticationPage } from './pages/Login/AuthenticationPage';
 import { Pages } from './types/pages';
+import { AuthenticationContextProvider } from './components/AuthenticationContext';
 
 function App() {
 
   return (
     <>
+    <AuthenticationContextProvider>
       <div className={styles.app}>
         <div className={styles.appHeader}>
           <h1>TrelloLitely</h1>
@@ -23,6 +25,7 @@ function App() {
             <Route path={Pages.Authentication} element={<AuthenticationPage />} />
           </Routes>
       </div>
+    </AuthenticationContextProvider>
     </>
   )
 }

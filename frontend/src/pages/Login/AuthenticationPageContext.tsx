@@ -1,4 +1,4 @@
-import { createContext, useCallback, useMemo } from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
 export interface AuthenticationPageContextType {
     showLogin: () => void;
@@ -13,11 +13,21 @@ interface AuthenticationPageContextProviderProps {
 
 export const AuthenticationPageContext = createContext<AuthenticationPageContextType | null>(null);
 
-export function AuthenticationPageContextProvider({ children, showLogin, showRegister }: AuthenticationPageContextProviderProps) {
+export const UseAuthenticationPageContext = () => {
+    const context = useContext(AuthenticationPageContext);
+
+    if (!context) {
+        throw new Error("UseAuthenticationPageContext must be used within an AuthenticationPageProvider");
+    }
+    
+    return context;
+}
+
+export function AuthenticationPageContextProvider({ children, showLogin, showRegister}: AuthenticationPageContextProviderProps) {
     const showLoginFunc = useCallback(() => showLogin(), [showLogin]);
     const showRegisterFunc = useCallback(() => showRegister(), [showRegister]);
     const value = useMemo(() => ({ "showLogin": showLoginFunc, "showRegister": showRegisterFunc }), [showLoginFunc, showRegisterFunc]);
-    
+
     return (
         <AuthenticationPageContext.Provider value={value}>
             {children}
