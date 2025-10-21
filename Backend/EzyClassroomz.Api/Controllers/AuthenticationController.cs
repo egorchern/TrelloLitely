@@ -7,9 +7,12 @@ using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using EzyClassroomz.Library.Repositories;
 using EzyClassroomz.Library.Entities;
 using Microsoft.AspNetCore.Authorization;
+using EzyClassroomz.Library.DTO;
+using EzyClassroomz.Library.Services;
+using EzyClassroomz.Library.Services.Users;
+using EzyClassroomz.Library.Repositories.Users;
 
 namespace EzyClassroomz.Api.Controllers;
 
@@ -19,13 +22,13 @@ public class AuthenticationController : ControllerBase
 {
     private readonly IConfiguration _configuration;
     private readonly ILogger<AuthenticationController> _logger;
-    private readonly UserRepository _userRepository;
+    private readonly IUserService _userService;
 
-    public AuthenticationController(IConfiguration configuration, ILogger<AuthenticationController> logger, UserRepository userRepository)
+    public AuthenticationController(IConfiguration configuration, ILogger<AuthenticationController> logger, IUserService userService)
     {
         _configuration = configuration;
         _logger = logger;
-        _userRepository = userRepository;
+        _userService = userService;
     }
 
     [HttpGet]
@@ -49,30 +52,28 @@ public class AuthenticationController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterRequestDTO request)
+    public async Task<IActionResult> Register([FromBody] UserRegisterRequest userRegisterRequest)
     {
         try
         {
-            User? existingUser = await _userRepository.GetUserByName(request.Name, readOnly: true);
+            RegisterUserResult result = await _userService.RegisterUser(userRegisterRequest);
 
-            if (existingUser != null)
+            if (!result.Success)
             {
-                return Conflict("User with this username already exists.");
+                switch(result.Error)
+                {
+                    case RegisterUserError.UserAlreadyExists:
+                        return Conflict("User with the same name already exists.");
+                    case RegisterUserError.MissingRequiredFields:
+                        return BadRequest("Missing required fields.");
+                    case RegisterUserError.InvalidEmail:
+                        return BadRequest("Invalid email address.");
+                    case RegisterUserError.WeakPassword:
+                        return BadRequest($"Weak password: {result.PasswordComplexityResult}");
+                    default:
+                        return BadRequest("Registration failed due to unknown error.");
+                }
             }
-
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
-
-            User newUser = new User
-            {
-                Name = request.Name,
-                Email = request.Email,
-                PasswordHash = hashedPassword,
-                TenantId = request.TenantId,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
-
-            await _userRepository.CreateUser(newUser);
 
             return Ok();
         }
@@ -88,11 +89,11 @@ public class AuthenticationController : ControllerBase
     {
         try
         {
-            User? user = await _userRepository.GetUserByName(request.Name, readOnly: true, includeAuthorizationPolicies: true);
+            User? user = await _userService.GetUserByLogin(request.Name, request.Password);
 
-            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            if (user == null)
             {
-                return Unauthorized("Invalid username or password.");
+                return Unauthorized("Invalid username or password. Or user does not exist.");
             }
 
             Response.Cookies.Append("jwt", GenerateJwtToken(request.Name, user.AuthorizationPolicies.ToDictionary(p => p.Name, p => "true")), new CookieOptions

@@ -2,9 +2,9 @@ using EzyClassroomz.Library.Data;
 using EzyClassroomz.Library.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace EzyClassroomz.Library.Repositories
+namespace EzyClassroomz.Library.Repositories.Users
 {
-    public class UserRepository
+    public class UserRepository : IUserRepository
     {
         private readonly ApplicationDbContext _context;
 

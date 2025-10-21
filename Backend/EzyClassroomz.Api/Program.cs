@@ -1,6 +1,7 @@
 using System.Text;
 using EzyClassroomz.Library.Data;
-using EzyClassroomz.Library.Repositories;
+using EzyClassroomz.Library.Repositories.Users;
+using EzyClassroomz.Library.Services.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -72,7 +73,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString);
 });
 
-builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
