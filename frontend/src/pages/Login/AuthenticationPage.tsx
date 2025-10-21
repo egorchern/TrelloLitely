@@ -21,7 +21,7 @@ export function AuthenticationPage() {
     return (
         <AuthenticationPageContextProvider showLogin={() => setShowLogin(true)} showRegister={() => setShowLogin(false)}>
             {(isLoading || isFetching) ? (
-                <Spinner />
+                <Spinner id="auth-page-spinner" />
             ) : (
                 error ? (
                     <div>Error: {error!.message}</div>
