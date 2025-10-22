@@ -1,6 +1,6 @@
 import { Board } from "@/types/board";
 
-async function APIGetBoard(boardId: string) {
+async function APIGetBoard(boardId: number) {
     let request = fetch(`/api/boards/${boardId}`, {
         method: 'GET',
         credentials: 'include',

@@ -15,7 +15,10 @@ public class Board
     public required string TenantId { get; set; }
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime CreatedAt { get; set; }
-    [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime UpdatedAt { get; set; }
     public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+
+    public Board()
+    {}
 }

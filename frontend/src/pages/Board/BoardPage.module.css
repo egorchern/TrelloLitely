@@ -1,0 +1,5 @@
+.ticketsContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 500px));
+    gap: 1.5rem;
+}

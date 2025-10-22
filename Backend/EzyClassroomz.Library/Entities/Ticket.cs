@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using EzyClassroomz.Library.Types;
 
 namespace EzyClassroomz.Library.Entities;
@@ -17,9 +18,10 @@ public class Ticket
     public long BoardId { get; set; }
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime CreatedAt { get; set; }
-    [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime UpdatedAt { get; set; }
     public TicketStatus Status { get; set; } = TicketStatus.ToDo;
+    [JsonIgnore]
     public Board? Board { get; set; }
 
     public Ticket()

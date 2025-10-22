@@ -25,9 +25,10 @@ export function GlobalFilterContextProvider({ children, initialFilterText }: Glo
     const [filterText, setFilterTextState] = useState(initialFilterText || "");
 
     const setFilterText = useCallback((text: string) => {
+        console.log("global filter: " + text)
         setFilterTextState(text);
     }, []);
-    
+
     const value = useMemo(() => ({filterText, setFilterText}), [filterText, setFilterText]);
 
     return (

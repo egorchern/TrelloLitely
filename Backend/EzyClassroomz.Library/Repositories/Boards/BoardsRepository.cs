@@ -32,7 +32,33 @@ namespace EzyClassroomz.Library.Repositories.Boards
                 query = query.Include(b => b.Tickets);
             }
 
-            return await query.Where(b => b.Id == boardId).FirstOrDefaultAsync();
+            Board? board = await query
+                .Where(b => b.Id == boardId)
+                .FirstOrDefaultAsync();
+
+            return board;
+        }
+
+        public async Task UpdateBoard(Board board)
+        {
+             var tracked = _dbContext.ChangeTracker
+                .Entries<Board>()
+                .FirstOrDefault(e => e.Property("Id").CurrentValue?.Equals(board.Id) == true)
+                ?.Entity;
+
+            if (tracked == null)
+            {
+                tracked = await GetBoardById(board.Id, false, true);
+            }
+
+            if (tracked == null)
+            {
+                throw new Exception("doesnt exist");
+            }
+
+            _dbContext.Entry(tracked).CurrentValues.SetValues(board);
+
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

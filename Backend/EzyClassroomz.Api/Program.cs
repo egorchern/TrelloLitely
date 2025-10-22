@@ -1,5 +1,6 @@
 using System.Text;
 using EzyClassroomz.Api.Classes;
+using EzyClassroomz.Api.Hubs;
 using EzyClassroomz.Library.Data;
 using EzyClassroomz.Library.Repositories.Boards;
 using EzyClassroomz.Library.Repositories.Users;
@@ -23,7 +24,8 @@ builder.Services.AddCors(options =>
         {
             policy.WithOrigins("http://localhost:5173")
                   .AllowAnyHeader()
-                  .AllowAnyMethod();
+                  .AllowAnyMethod()
+                  .AllowCredentials();
         });
 });
 // Add JWT Authentication
@@ -51,7 +53,20 @@ builder.Services.AddAuthentication(options =>
     {
         OnMessageReceived = context =>
         {
-            context.Token = context.Request.Cookies["jwt"];
+            // Read token from cookie for regular HTTP requests
+            var token = context.Request.Cookies["jwt"];
+            
+            // For SignalR, also check query string (fallback) and headers
+            if (string.IsNullOrEmpty(token))
+            {
+                var path = context.HttpContext.Request.Path;
+                if (path.StartsWithSegments("/hubs"))
+                {
+                    token = context.Request.Query["access_token"];
+                }
+            }
+            
+            context.Token = token;
             return Task.CompletedTask;
         }
     };
@@ -77,7 +92,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBoardsRepository, BoardsRepository>();
-
+builder.Services.AddSignalR();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -95,7 +110,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
+app.MapHub<TicketNotificationHub>("/hubs/ticketNotifications");
 app.Run();
 
 // Expose a Program type for integration testing (WebApplicationFactory<T> requires a Program type)
