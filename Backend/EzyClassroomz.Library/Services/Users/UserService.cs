@@ -70,7 +70,7 @@ namespace EzyClassroomz.Library.Services.Users
 
         public async Task<User?> GetUserByLogin(string username, string password)
         {
-            User? user = await _userRepository.GetUserByName(username, readOnly: true);
+            User? user = await _userRepository.GetUserByName(username, readOnly: true, true);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
             {

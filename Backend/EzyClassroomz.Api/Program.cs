@@ -1,5 +1,7 @@
 using System.Text;
+using EzyClassroomz.Api.Classes;
 using EzyClassroomz.Library.Data;
+using EzyClassroomz.Library.Repositories.Boards;
 using EzyClassroomz.Library.Repositories.Users;
 using EzyClassroomz.Library.Services.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -57,8 +59,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("viewRestricted", policy =>
-        policy.RequireClaim("viewRestricted"));
+    AuthorizationPolicies.InitializePolicies(options);
 });
 
 builder.Logging.ClearProviders();
@@ -75,6 +76,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IBoardsRepository, BoardsRepository>();
 
 var app = builder.Build();
 

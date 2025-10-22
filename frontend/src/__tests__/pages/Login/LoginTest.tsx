@@ -89,3 +89,5 @@ test("filling form and submitting calls mutation, displays error and onSuccessfu
       expect(onSuccessfulLoginMock).toHaveBeenCalledTimes(1);
     });
 });
+// TODO: cloudformation: ec2 + dynamodb + sqs queue + cloudwatch log group + vpc + s3 bucket, sqs
+// TODO: Filtering sidebar

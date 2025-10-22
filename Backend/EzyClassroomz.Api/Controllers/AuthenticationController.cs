@@ -13,6 +13,7 @@ using EzyClassroomz.Library.DTO;
 using EzyClassroomz.Library.Services;
 using EzyClassroomz.Library.Services.Users;
 using EzyClassroomz.Library.Repositories.Users;
+using Microsoft.Extensions.Primitives;
 
 namespace EzyClassroomz.Api.Controllers;
 
@@ -96,7 +97,7 @@ public class AuthenticationController : ControllerBase
                 return Unauthorized("Invalid username or password. Or user does not exist.");
             }
 
-            Response.Cookies.Append("jwt", GenerateJwtToken(request.Name, user.AuthorizationPolicies.ToDictionary(p => p.Name, p => "true")), new CookieOptions
+            Response.Cookies.Append("jwt", GenerateJwtToken(request.Name, user.TenantId, user.AuthorizationPolicies.ToDictionary(p => p.Name, p => "true")), new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
@@ -114,7 +115,7 @@ public class AuthenticationController : ControllerBase
         }
     }
 
-    private string GenerateJwtToken(string username, Dictionary<string, string> claims)
+    private string GenerateJwtToken(string username, string tenantId, Dictionary<string, string> claims)
     {
         SymmetricSecurityKey key = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
@@ -123,6 +124,8 @@ public class AuthenticationController : ControllerBase
         Dictionary<string, object> claimsDict = new Dictionary<string, object>
         {
             [JwtRegisteredClaimNames.Sub] = username,
+            ["Username"] = username,
+            ["TenantId"] = tenantId,
             [JwtRegisteredClaimNames.Jti] = Guid.NewGuid().ToString()
         };
 
